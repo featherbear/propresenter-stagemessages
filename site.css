@@ -1,0 +1,31 @@
+html {
+}
+
+body {
+
+}
+
+#currentMessage {
+
+}
+
+#input {
+}
+
+#clear {
+}
+
+#send {
+
+}
+
+#status {
+}
+
+dialog#options {  
+    width: 500px;  
+    background:#e8e8e8;
+    border: 1px solid #dadada;
+    font-family:sans-serif;
+    padding: 5px 10px 20px 20px;
+}  
