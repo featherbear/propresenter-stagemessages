@@ -1,48 +1,79 @@
 html {
+     margin: 0;
+     padding: 0;
 }
-body {
+ body {
      background-color: #333333;
+     padding: 0;
+     margin: 0;
 }
-#currentMessage {
+ #currentMessage::before {
+     content: "\200b";
 }
-#input {
+ #currentMessage {
+     font-family: 'Arial';
+     font-size: 5em;
+     padding: 5%;
+     background-color: black;
+     color: white;
+     text-align: center;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
 }
-#clear {
+ #input {
 }
-#send {
+ #send {
 }
-#status[class="connected"] {
+ #clear {
+}
+ #status[class="connected"] {
      background-color: #0c6;
 }
-#status[class="disconnected"] {
+ #status[class="disconnected"] {
      background-color: #F66;
 }
-#status[class="connecting"] {
+ #status[class="connecting"] {
      background-color: #CC3;
 }
-#status::before {
+ #status::before {
      content: "Status: " 
 }
-#status {
+ #status {
      width: 100%;
      bottom: 0;
      left:0;
      position: absolute;
 }
-dialog#options {
+ #pref_open {
+     opacity: 0.2;
+     right: 0;
+     position: absolute;
+}
+ dialog#preferences span {
+     display: block;
+}
+ dialog#preferences #pref_save {
+     margin-top: 5px;
+     float: right;
+}
+ dialog#preferences___ {
      width: 500px;
      background:#e8e8e8;
      border: 1px solid #dadada;
      font-family:sans-serif;
      padding: 5px 10px 20px 20px;
 }
-
-
-.blink_me {
-     animation: blinker 1s linear infinite;
+ .blink {
+     animation: blinker 1s 5;
 }
  @keyframes blinker {
-     50% {
-         opacity: 0;
+     0%, 49% {
+         background-color: black;
+         color: white;
+    }
+     50%, 100% {
+         background-color: white;
+         color: black;
     }
 }
