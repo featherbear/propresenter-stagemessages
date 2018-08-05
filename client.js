@@ -34,7 +34,7 @@ function connect(obj) {
     debug && console.log(`Connecting to ws://${host}:${port}/remote`);
     socket = new WebSocket(`ws://${host}:${port}/remote`);
     // Above operation is non-blocking. Have to wait for the socket to connect before we authenticate()
-    socket.onerror = cb_connectFail;
+    socket.onclose = socket.onerror = cb_connectFail;
     socket.onopen = function() {
         cb_connectSuccess && cb_connectSuccess();
         debug && console.log("Connection success, authenticating...");
