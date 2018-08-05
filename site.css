@@ -21,7 +21,7 @@ body {
 }
 
 #currentMessage.blink {
-  animation: blinker 1s 5;
+  animation: blinker .8s 5;
 }
 
 @keyframes blinker {
