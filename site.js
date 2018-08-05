@@ -6,19 +6,29 @@ status_badAuth = () => (elem("status").className = "disconnected") && (elem("sta
 status_connecting = () => elem("status").className = (elem("status").innerText = "Connecting").toLowerCase();
 status_connected = () => elem("status").className = (elem("status").innerText = "Connected").toLowerCase();
 
-let authLoop;
-
-function authSuccess() {
-    clearTimeout(authLoop);
+let cb = {
+  connectFail: function () {
+    status_disconnected();
+    connectFail();
+  },
+  authSuccess: function () {
+    clearTimeout(connectLoop);
     status_connected();
+  },
+  authFail: function () {
+    status_badAuth();
+    connectFail();
+  },
 }
 
-function authFailed() {
-    status_badAuth();
-    clearTimeout(authLoop);
-    authLoop = setTimeout(function() {
+let connectLoop;
+let shakeLoop;
+
+function connectFail() {
+    clearTimeout(connectLoop);
+    connectLoop = setTimeout(function() {
         status_connecting();
-        connect(authSuccess, authFailed);
+        connect(cb);
     }, 3000);
 }
 
@@ -33,8 +43,14 @@ elem("message").addEventListener("keyup", function(event) {
     }
 });
 elem("send").addEventListener("click", function() {
-    let message = elem("message").value.trim();
+    let message;
+    if (!(message = elem("message").value.trim())) return false;
     stageMessageSend(message);
+    
+    clearTimeout(shakeLoop)
+    elem("send").className="shake";
+    shakeLoop = setTimeout(()=>elem("send").className="",200);
+    
 
     var oldMessage = elem("currentMessage");
     var newMessage = oldMessage.cloneNode(true);
@@ -63,9 +79,10 @@ elem("pref_save").addEventListener("click", function() {
     localStorage.setItem("pass", elem("pref_pass").value || default_pass);
     socket.close()
     status_disconnected();
-    connect(authSuccess, authFailed);
+    connect(cb);
     status_connecting();
     elem("preferences").close();
 })
 
-connect(authSuccess, authFailed);
+status_connecting();
+connect(cb);

@@ -1,11 +1,14 @@
 // C:\Program Files (x86)\Renewed Vision\ProPresenter 6\ProPresenter.UI.Plugin.dll
 // ProPresenter.UI.Plugin.ProNetwork.RVProRemoteWebSocketServiceHandler
+
 const debug = false;
 const default_host = 'localhost';
 const default_port = '50001';
 const default_pass = 'control';
 
 let socket;
+let cb_connectSuccess;
+let cb_connectFail;
 let cb_authSuccess;
 let cb_authFail;
 
@@ -20,15 +23,20 @@ function check_socket() {
     return true;
 }
 
-function connect(aS, aF) {
-    aS && (cb_authSuccess = aS);
-    aF && (cb_authFail = aF);
+function connect(obj) {
+    obj.connectSuccess && (cb_connectSuccess = obj.connectSuccess);
+    obj.connectFail && (cb_connectFail = obj.connectFail);
+    obj.authSuccess && (cb_authSuccess = obj.authSuccess);
+    obj.authFail && (cb_authFail = obj.authFail);
+
     var host = localStorage.getItem("host") || default_host;
     var port = localStorage.getItem("port") || default_port;
     debug && console.log(`Connecting to ws://${host}:${port}/remote`);
     socket = new WebSocket(`ws://${host}:${port}/remote`);
     // Above operation is non-blocking. Have to wait for the socket to connect before we authenticate()
+    socket.onerror = cb_connectFail;
     socket.onopen = function() {
+        cb_connectSuccess && cb_connectSuccess();
         debug && console.log("Connection success, authenticating...");
         authenticate()
     };
@@ -51,7 +59,6 @@ function listen() {
             case "authenticate":
                 debug && console.log("Authentication " + (msg.authenticated ? "success" : "failed"));
                 msg.authenticated ? (cb_authSuccess && cb_authSuccess()) : (cb_authFail && cb_authFail());
-                // controlling = (msg.controller == 1);
                 break;
             default:
                 console.log(msg);

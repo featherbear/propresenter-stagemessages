@@ -9,10 +9,11 @@
   <body>
     <button id="pref_open">Settings</button>
     <div id="currentMessage"></div>
-    <input type="text" id="message"><br>
-    <!-- Send on enter -->
-    <button id="send">Send</button>
-    <button id="clear">Clear</button>
+    <div id="controls">
+      <input type="text" id="message" placeholder="Enter message here">
+      <button id="send">Send Message<span class="send-button"></span></button>
+      <button id="clear">Clear</button>
+    </div>
     <span id="status"></span>
     <dialog id="preferences">
       <h3>Preferences</h3>
