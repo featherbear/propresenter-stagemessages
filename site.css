@@ -1,31 +1,48 @@
 html {
 }
-
 body {
-
+     background-color: #333333;
 }
-
 #currentMessage {
-
 }
-
 #input {
 }
-
 #clear {
 }
-
 #send {
-
 }
-
+#status[class="connected"] {
+     background-color: #0c6;
+}
+#status[class="disconnected"] {
+     background-color: #F66;
+}
+#status[class="connecting"] {
+     background-color: #CC3;
+}
+#status::before {
+     content: "Status: " 
+}
 #status {
+     width: 100%;
+     bottom: 0;
+     left:0;
+     position: absolute;
+}
+dialog#options {
+     width: 500px;
+     background:#e8e8e8;
+     border: 1px solid #dadada;
+     font-family:sans-serif;
+     padding: 5px 10px 20px 20px;
 }
 
-dialog#options {  
-    width: 500px;  
-    background:#e8e8e8;
-    border: 1px solid #dadada;
-    font-family:sans-serif;
-    padding: 5px 10px 20px 20px;
-}  
+
+.blink_me {
+     animation: blinker 1s linear infinite;
+}
+ @keyframes blinker {
+     50% {
+         opacity: 0;
+    }
+}
