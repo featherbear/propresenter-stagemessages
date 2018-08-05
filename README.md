@@ -1,6 +1,9 @@
 # ProPresenter 6 - Stage Display Message Sender Client
 A tool to send stage display messages to ProPresenter6.  
 
+Click [here](http://featherbear.au.eu.org/pp6sdm/) to access the interface
+
+<!--Not using this version because GitHub Pages enforces HTTPS, which means that we can't connect to the insecure WebSocket server that ProPresenter 6 serves-->
 <!--Click [here](https://featherbear.github.io/propresenter-stagemessages) to access the interface-->
 
 # Instructions
