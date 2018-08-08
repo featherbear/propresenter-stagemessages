@@ -1,25 +1,35 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>ProPresenter 6 Stage Display Message Sender</title>
     <link rel="stylesheet" type="text/css" href="./site.css">
     <script type="application/javascript" src="./client.js" defer></script>
     <script type="application/javascript" src="./site.js" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css"/>
+    <meta name="theme-color" content="#4b3ea3" />
   </head>
   <body>
-    <button id="pref_open">Settings</button>
-    <div id="currentMessage"></div>
-    <div id="controls">
-      <input type="text" id="message" placeholder="Enter message here">
-      <button id="send">Send Message<span class="send-button"></span></button>
-      <button id="clear">Clear</button>
+    <div class="bg-theme white flex">
+      <h2 class="f6 f4-ns ph3" style="flex-grow:1">Stage Display Messages</h2>
+      <button id="pref_open" class="db tr">Settings</button>
     </div>
     <span id="status"></span>
+    <div id="currentMessage"></div>
+    <div id="controls" class="w-100">
+      <textarea type="text" id="message" placeholder="Enter message here" class="f3">
+      </textarea>
+      <button id="send">Send<span class="send-button"></span></button>
+      <button id="clear" class="ph4 pv2">Clear</button>
+    </div>
     <dialog id="preferences">
       <h3>Preferences</h3>
-      <span><label>Address: </label><input id="pref_addr" type="text"></span>
-      <span><label>Port: </label><input id="pref_port" type="number" min="1" max="65535"></span>
-      <span><label>Password: </label><input id="pref_pass" type="text"></span>
+      <span><label>Address </label><input id="pref_addr" type="text"></span>
+      <span><label>Port </label><input id="pref_port" type="number" min="1" max="65535"></span>
+      <span><label>Password </label><input id="pref_pass" type="text"></span>
       <button id="pref_save">Save</button>
     </dialog>
   </body>
