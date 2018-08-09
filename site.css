@@ -16,9 +16,7 @@ body {
   text-overflow: ellipsis;
 }
 
-@media only screen
-and (max-device-width: 800px) {
-
+@media only screen and (max-device-width: 800px) {
   #currentMessage {
     font-size: 2em;
   }
@@ -48,15 +46,21 @@ and (max-device-width: 800px) {
   margin: 0 auto;
 }
 
-#controls #message::placeholder {
-  opacity: 0.25;
-}
 
 #controls #message {
   display: block;
   width: 100%;
   box-sizing: border-box;
   min-height: 128px;
+  resize: none;
+}
+
+#controls #message::placeholder {
+  opacity: 0.25;
+}
+
+#controls #message:focus {
+  outline: none;
 }
 
 #controls button {
@@ -183,7 +187,7 @@ dialog#preferences input {
   width: 180px;
 }
 
-dialog#preferences label{
+dialog#preferences label {
   display: inline-block;
   float: left;
   clear: left;
