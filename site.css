@@ -181,6 +181,7 @@ dialog#preferences {
   border: 1px solid #dadada;
   font-family: sans-serif;
   padding: 5px 10px 20px 20px;
+  z-index: 1;
 }
 
 dialog#preferences input {
@@ -192,4 +193,14 @@ dialog#preferences label {
   float: left;
   clear: left;
   min-width: 90px;
+}
+
+dialog#preferences[open] ~ .dialogBackground {
+  z-index: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
 }
