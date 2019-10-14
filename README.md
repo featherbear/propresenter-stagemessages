@@ -6,6 +6,11 @@ Click [here](http://pp6sdm.apps.navhaxs.au.eu.org/) to access the interface
 
 # Instructions
 
+## Running the Server
+
+Set up a HTTP server.  
+A HTTP**S** server will **not** work due to insecure websockets being denied access on a secure site
+
 ## Enable Remote Operation
 
 * Open Preferences > Network
