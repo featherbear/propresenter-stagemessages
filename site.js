@@ -1,5 +1,5 @@
 // load client.js first!
-elem = id => document.getElementById(id);
+const elem = id => document.getElementById(id);
 
 (status_disconnected = () => elem("status").className = (elem("status").innerText = "Disconnected").toLowerCase())();
 status_badAuth = () => (elem("status").className = "disconnected") && (elem("status").innerText = "Bad password... retrying in 3 seconds");
@@ -72,6 +72,23 @@ function showPreferences() {
     elem("pref_pass").value = localStorage.getItem("pass") || default_pass;
 }
 elem("pref_open").addEventListener("click", showPreferences);
+
+
+if (typeof elem("preferences").showModal !== "function") {
+    elem("preferences").showModal = function() {
+        this.setAttribute('open', true)
+    }
+}
+
+if (typeof elem("preferences").close !== "function") {
+    elem("preferences").close = function() {
+        this.removeAttribute('open')
+    }
+}
+
+document.querySelector('.dialogBackground').addEventListener('click', () => {
+    elem("preferences").close()
+})
 
 elem("pref_save").addEventListener("click", function() {
     localStorage.setItem("host", elem("pref_addr").value || default_host);
