@@ -2,14 +2,16 @@
 
 A tool to send stage display messages to ProPresenter 6.  
 
-Click [here](http://pp6sdm.apps.navhaxs.au.eu.org/) to access the interface
+Click [here](http://pp6sdm.apps.navhaxs.au.eu.org/) to access the interface.  
+No data is transmitted to any server or program, other than to your ProPresenter machine.
 
 # Instructions
 
 ## Running the Server
 
-Set up a HTTP server.  
-A HTTP**S** server will **not** work due to insecure websockets being denied access on a secure site
+Set up a HTTP (**NOT HTTPS**) server.  
+
+_A HTTP**S** server will **not** work due to modern security features_
 
 ## Enable Remote Operation
 
@@ -28,5 +30,5 @@ A HTTP**S** server will **not** work due to insecure websockets being denied acc
 
 # Legal
 
-* Project based off [jeffmikels/ProPresenter-API](https://github.com/jeffmikels/ProPresenter-API/)
 * ProPresenter by Renewed Vision LLC
+* ProPresenter API from [jeffmikels/ProPresenter-API](https://github.com/jeffmikels/ProPresenter-API/)
