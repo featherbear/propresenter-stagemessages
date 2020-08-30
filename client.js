@@ -1,87 +1,84 @@
 // C:\Program Files (x86)\Renewed Vision\ProPresenter 6\ProPresenter.UI.Plugin.dll
 // ProPresenter.UI.Plugin.ProNetwork.RVProRemoteWebSocketServiceHandler
 
-const debug = false
-const default_host = 'localhost'
-const default_port = '50001'
-const default_pass = 'control'
-
-let socket
-let cb_connectSuccess
-let cb_connectFail
-let cb_authSuccess
-let cb_authFail
-
-function err (s) {
-  debug && console.error(`Error: ${s}`)
-  return false
-}
-
-function check_socket () {
-  if (!socket) return err('SOCKET NOT CONNECTED')
-  if (socket.readyState != 1) return err('SOCKET NOT READY')
-  return true
-}
-
-function connect (obj) {
-  obj.connectSuccess && (cb_connectSuccess = obj.connectSuccess)
-  obj.connectFail && (cb_connectFail = obj.connectFail)
-  obj.authSuccess && (cb_authSuccess = obj.authSuccess)
-  obj.authFail && (cb_authFail = obj.authFail)
-
-  var host = localStorage.getItem('host') || default_host
-  var port = localStorage.getItem('port') || default_port
-  debug && console.log(`Connecting to ws://${host}:${port}/remote`)
-  socket = new WebSocket(`ws://${host}:${port}/remote`)
-  // Above operation is non-blocking. Have to wait for the socket to connect before we authenticate()
-  socket.onclose = socket.onerror = cb_connectFail
-  socket.onopen = function () {
-    cb_connectSuccess && cb_connectSuccess()
-    debug && console.log('Connection success, authenticating...')
-    authenticate()
+window.PP_SDM_CLASS = class {
+  constructor (options) {
+    this.options = { ...options }
+    this._socket = null
   }
-  listen()
-}
 
-function authenticate () {
-  emit({
-    action: 'authenticate',
-    protocol: '600',
-    password: localStorage.getItem('pass') || default_pass
-  })
-}
+  _err (s) {
+    DEBUG && console.error(`Error: ${s}`)
+    return false
+  }
 
-function listen () {
-  socket.onmessage = function (event) {
-    var msg = JSON.parse(event.data)
+  _checkSocket () {
+    if (!this._socket) return this._err('SOCKET NOT CONNECTED')
+    if (this._socket.readyState !== 1) return this._err('SOCKET NOT READY')
+    return true
+  }
 
-    switch (msg.action) {
-      case 'authenticate':
-        debug && console.log('Authentication ' + (msg.authenticated ? 'success' : 'failed'))
-        msg.authenticated ? (cb_authSuccess && cb_authSuccess()) : (cb_authFail && cb_authFail())
-        break
-      default:
-        console.log(msg)
-        break
+  connect () {
+    const { HOST, PORT } = this.options
+    DEBUG && console.log(`Connecting to ws://${HOST}:${PORT}/remote`)
+    this._socket = new WebSocket(`ws://${HOST}:${PORT}/remote`)
+
+    if (typeof this.options.connectFail === 'function') {
+      this._socket.onclose = this._socket.onerror = this.options.connectFail
+    }
+
+    this._socket.onopen = function () {
+      this.options.connectSuccess && this.options.connectSuccess()
+
+      this._listen()
+
+      DEBUG && console.log('Connection success, authenticating...')
+      this._emit({
+        action: 'authenticate',
+        protocol: '600',
+        password: this.options.PASSWORD
+      })
     }
   }
-}
 
-function stageMessageSend (msg) {
-  emit({
-    action: 'stageDisplaySendMessage',
-    stageDisplayMessage: msg
-  })
-}
+  close () {
+    this._socket.close()
+  }
 
-function stageMessageHide () {
-  emit({
-    action: 'stageDisplayHideMessage'
-  })
-}
+  _listen () {
+    this._socket.onmessage = function (event) {
+      const msg = JSON.parse(event.data)
 
-function emit (obj) {
-  var json = JSON.stringify(obj)
-  if (check_socket()) socket.send(json)
-  else return err('SOCKET EMIT FAILED')
+      switch (msg.action) {
+        case 'authenticate':
+          DEBUG && console.log('Authentication ' + (msg.authenticated ? 'success' : 'failed'))
+          msg.authenticated
+            ? (this.options.cb_authSuccess && this.options.cb_authSuccess())
+            : (this.options.cb_authFail && this.options.cb_authFail())
+          break
+        default:
+          console.log(msg)
+          break
+      }
+    }
+  }
+
+  send (msg) {
+    this._emit({
+      action: 'stageDisplaySendMessage',
+      stageDisplayMessage: msg
+    })
+  }
+
+  hide () {
+    this._emit({
+      action: 'stageDisplayHideMessage'
+    })
+  }
+
+  _emit (obj) {
+    const json = JSON.stringify(obj)
+    if (this._checkSocket()) this._socket.send(json)
+    else return this._err('SOCKET EMIT FAILED')
+  }
 }

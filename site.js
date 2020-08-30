@@ -1,102 +1,148 @@
 // load client.js first!
-const elem = id => document.getElementById(id);
 
-(status_disconnected = () => elem('status').className = (elem('status').innerText = 'Disconnected').toLowerCase())()
-status_badAuth = () => (elem('status').className = 'disconnected') && (elem('status').innerText = 'Bad password... retrying in 3 seconds')
-status_connecting = () => elem('status').className = (elem('status').innerText = 'Connecting').toLowerCase()
-status_connected = () => elem('status').className = (elem('status').innerText = 'Connected').toLowerCase()
+const DEBUG = false
 
-const cb = {
-  connectFail: function () {
-    status_disconnected()
-    connectFail()
-  },
-  authSuccess: function () {
-    clearTimeout(connectLoop)
-    status_connected()
-  },
-  authFail: function () {
-    status_badAuth()
-    connectFail()
+;(function () {
+  const defaultHost = 'localhost'
+  const defaultPort = '50001'
+  const defaultPass = 'control'
+
+  const elem = id => document.getElementById(id)
+  const statusElem = elem('status')
+  const messageElem = elem('currentMessage')
+
+  function setStatus (status) {
+    switch (status) {
+      case 'disconnected':
+        statusElem.className = 'disconnected'
+        statusElem.innerText = 'Disconnected'
+        break
+      case 'badAuth':
+        statusElem.className = 'disconnected'
+        statusElem.innerText = 'Bad password... retrying in 3 seconds'
+        break
+      case 'connecting':
+        statusElem.className = 'connecting'
+        statusElem.innerText = 'Connecting'
+        break
+      case 'connected':
+        statusElem.className = 'connected'
+        statusElem.innerText = 'Connected'
+        break
+    }
   }
-}
 
-let connectLoop
-let shakeLoop
+  let reconnectTimer
 
-function connectFail () {
-  clearTimeout(connectLoop)
-  connectLoop = setTimeout(function () {
-    status_connecting()
-    connect(cb)
-  }, 3000)
-}
-
-elem('message').addEventListener('keyup', function (event) {
-  event.preventDefault()
-  switch (event.keyCode) {
-    case 13:
-      elem('message').value.trim() && elem('send').click()
-    case 27:
-      elem('message').value = ''
-      break
+  function connectFail () {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = setTimeout(function () {
+      setStatus('connecting')
+      Client.connect()
+    }, 3000)
   }
-})
-elem('send').addEventListener('click', function () {
-  let message
-  if (!(message = elem('message').value.trim())) return false
-  stageMessageSend(message)
 
-  clearTimeout(shakeLoop)
-  elem('send').className = 'shake'
-  shakeLoop = setTimeout(() => elem('send').className = '', 200)
+  const callbacks = {
+    connectFail () {
+      setStatus('disconnected')
+      connectFail()
+    },
+    authFail () {
+      setStatus('badAuth')
+      connectFail()
+    },
+    authSuccess () {
+      clearTimeout(reconnectTimer)
+      setStatus('connected')
+    }
+  }
 
-  var oldMessage = elem('currentMessage')
-  var newMessage = oldMessage.cloneNode(true)
-  newMessage.innerText = message
-  newMessage.className = 'blink'
-  oldMessage.parentNode.replaceChild(newMessage, oldMessage)
-})
-elem('clear').addEventListener('click', function () {
-  stageMessageHide()
-  elem('currentMessage').innerText = ' '
-  elem('currentMessage').className = ''
-})
+  let Client
+  function init () {
+    clearTimeout(reconnectTimer)
+    Client && Client.close()
+    Client = new PP_SDM_CLASS({
+      ...callbacks,
+      HOST: localStorage.getItem('host'),
+      PORT: localStorage.getItem('port'),
+      PASS: localStorage.getItem('pass')
+    })
+    setStatus('connecting')
+    Client.connect()
+  }
 
-function showPreferences () {
-  elem('preferences').showModal()
-  elem('pref_addr').value = localStorage.getItem('host') || default_host
-  elem('pref_port').value = localStorage.getItem('port') || default_port
-  elem('pref_pass').value = localStorage.getItem('pass') || default_pass
-}
-elem('pref_open').addEventListener('click', showPreferences)
+  elem('message').addEventListener('keyup', event => {
+    event.preventDefault()
 
-if (typeof elem('preferences').showModal !== 'function') {
-  elem('preferences').showModal = function () {
+    switch (event.keyCode) {
+      case 13:
+        elem('message').value.trim() && elem('send').click()
+
+      // es-lint: allow fall through
+      case 27:
+        elem('message').value = ''
+        break
+    }
+  })
+
+  let shakeLoop
+  function doShake (duration = 200) {
+    clearTimeout(shakeLoop)
+    elem('send').className = 'shake'
+    shakeLoop = setTimeout(() => (elem('send').className = ''), duration)
+  }
+
+  elem('send').addEventListener('click', () => {
+    const message = elem('message').value.trim()
+    if (!message) return false
+    Client.send(message)
+    doShake()
+
+    messageElem.innerText = message
+    messageElem.className = 'blink'
+  })
+
+  elem('clear').addEventListener('click', () => {
+    Client.hide()
+    messageElem.innerText = ' '
+    messageElem.className = ''
+  })
+
+  elem('pref_open').addEventListener('click', () => {
+    elem('preferences').showModal()
+  })
+
+  elem('preferences').showModal = function (allowClose = true, defaultFallback = false) {
+    elem('pref_addr').value = localStorage.getItem('host') || (defaultFallback ? defaultHost : '')
+    elem('pref_port').value = localStorage.getItem('port') || (defaultFallback ? defaultPort : '')
+    elem('pref_pass').value = localStorage.getItem('pass') || (defaultFallback ? defaultPass : '')
+
+    allowClose && document.querySelector('.dialogBackground')
+      .addEventListener('click', elem('preferences').closeModal)
+
     this.setAttribute('open', true)
   }
-}
-
-if (typeof elem('preferences').close !== 'function') {
-  elem('preferences').close = function () {
-    this.removeAttribute('open')
+  elem('preferences').closeModal = function () {
+    document.querySelector('.dialogBackground').removeEventListener('click', elem('preferences').closeModal)
+    elem('preferences').removeAttribute('open')
+    elem('pref_addr').value = ''
+    elem('pref_port').value = ''
+    elem('pref_pass').value = ''
   }
-}
 
-document.querySelector('.dialogBackground').addEventListener('click', () => {
-  elem('preferences').close()
-})
+  elem('pref_save').addEventListener('click', function () {
+    localStorage.setItem('host', elem('pref_addr').value)
+    localStorage.setItem('port', elem('pref_port').value)
+    localStorage.setItem('pass', elem('pref_pass').value)
+    elem('preferences').closeModal()
+    Client && Client.close()
+    setStatus('disconnecting')
+    init()
+  })
 
-elem('pref_save').addEventListener('click', function () {
-  localStorage.setItem('host', elem('pref_addr').value || default_host)
-  localStorage.setItem('port', elem('pref_port').value || default_port)
-  localStorage.setItem('pass', elem('pref_pass').value || default_pass)
-  socket.close()
-  status_disconnected()
-  connect(cb)
-  status_connecting()
-  elem('preferences').close()
-})
-
-status_connecting()
-connect(cb)
+  if (localStorage.getItem('host') && localStorage.getItem('port')) {
+    init()
+  } else {
+    elem('preferences').showModal(false, true)
+  }
+})()
