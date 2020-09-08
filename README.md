@@ -1,6 +1,6 @@
-# ProPresenter 6 - Stage Display Messages Client
+# ProPresenter Stage Display Message Client
 
-A tool to send stage display messages to ProPresenter 6.  
+A tool to send stage display messages to ProPresenter 6 and ProPresenter 7.  
 
 Click [here](http://pp6sdm.apps.navhaxs.au.eu.org/) to access the interface.  
 No data is transmitted to any server or program, other than to your ProPresenter machine.
