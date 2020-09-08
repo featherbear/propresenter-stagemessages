@@ -27,7 +27,7 @@ window.PP_SDM_CLASS = class {
       this._socket.onclose = this._socket.onerror = this.options.connectFail
     }
 
-    this._socket.onopen = function () {
+    this._socket.onopen = () => {
       this.options.connectSuccess && this.options.connectSuccess()
 
       this._listen()
@@ -46,15 +46,15 @@ window.PP_SDM_CLASS = class {
   }
 
   _listen () {
-    this._socket.onmessage = function (event) {
+    this._socket.onmessage = event => {
       const msg = JSON.parse(event.data)
 
       switch (msg.action) {
         case 'authenticate':
           DEBUG && console.log('Authentication ' + (msg.authenticated ? 'success' : 'failed'))
           msg.authenticated
-            ? (this.options.cb_authSuccess && this.options.cb_authSuccess())
-            : (this.options.cb_authFail && this.options.cb_authFail())
+            ? (this.options.authSuccess && this.options.authSuccess())
+            : (this.options.authFail && this.options.authFail())
           break
         default:
           console.log(msg)
