@@ -36,7 +36,7 @@ window.PP_SDM_CLASS = class {
       this._emit({
         action: 'authenticate',
         protocol: '600',
-        password: this.options.PASSWORD
+        password: this.options.PASS
       })
     }
   }
@@ -51,10 +51,28 @@ window.PP_SDM_CLASS = class {
 
       switch (msg.action) {
         case 'authenticate':
-          DEBUG && console.log('Authentication ' + (msg.authenticated ? 'success' : 'failed'))
-          msg.authenticated
-            ? (this.options.authSuccess && this.options.authSuccess())
-            : (this.options.authFail && this.options.authFail())
+          if (msg.error === 'Remote application protocol out of date.  Update application') {
+            DEBUG && console.log('Trying ProPresenter 7 protocol')
+            this._emit({
+              action: 'authenticate',
+              protocol: '700',
+              password: this.options.PASS
+            })
+            break
+          }
+
+          if (msg.authenticated) {
+            if (msg.controller) {
+              this.options.authSuccess && this.options.authSuccess()
+            } else {
+              this.options.permFail && this.options.permFail()
+            }
+          } else {
+            this.options.authFail && this.options.authFail()
+          }
+
+          DEBUG && console.log('Connection ' + ((msg.authenticated && msg.controller) ? 'success' : 'failed'))
+
           break
         default:
           console.log(msg)

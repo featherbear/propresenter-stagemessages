@@ -21,6 +21,10 @@ const DEBUG = false
         statusElem.className = 'disconnected'
         statusElem.innerText = 'Bad password... retrying in 3 seconds'
         break
+      case 'badPerm':
+        statusElem.className = 'disconnected'
+        statusElem.innerText = 'Controller access not enabled... Please configure ProPresenter'
+        break
       case 'connecting':
         statusElem.className = 'connecting'
         statusElem.innerText = 'Connecting'
@@ -49,6 +53,10 @@ const DEBUG = false
     },
     authFail () {
       setStatus('badAuth')
+      connectFail()
+    },
+    permFail () {
+      setStatus('badPerm')
       connectFail()
     },
     authSuccess () {
